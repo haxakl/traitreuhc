@@ -1,0 +1,7 @@
+name: TaupeGun
+main: taupegun.TaupeGun
+version: 1.0
+commands:
+    uhc:
+        description: Commandes pour l'uhc
+        usage: /<command> <arg1>
