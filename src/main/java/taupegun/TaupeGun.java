@@ -1,6 +1,7 @@
 package taupegun;
 
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -38,6 +39,12 @@ public class TaupeGun extends JavaPlugin {
             this.vie.setDisplaySlot(DisplaySlot.PLAYER_LIST);
         }
         
+        // Liste des mondes
+        System.out.println(" * Liste des mondes vue par bukkit");
+        for(World world : getServer().getWorlds()) {
+            System.out.println(world.getName());
+        }
+        
         // On test si le monde existe
         if(getServer().getWorld(getConfig().getString("world")) == null) {
             System.out.println("Le monde n'existe pas : " + getConfig().getString("world"));
@@ -45,7 +52,7 @@ public class TaupeGun extends JavaPlugin {
         }
         
         // On place la bordure
-        getServer().getWorld(getConfig().getString("world")).getWorldBorder().setSize(getConfig().getDouble("worldborder.size"));
+        getServer().getWorld(getConfig().getString("world")).getWorldBorder().setSize(getConfig().getDouble("worldborder.taille"));
     }
 
     @Override
