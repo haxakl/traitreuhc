@@ -1,6 +1,10 @@
 package taupegun;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -30,12 +34,18 @@ public class TaupeGun extends JavaPlugin {
     private Scoreboard scoreboard;
     private Objective vie;
     private Objective obj;
-    
+
     public ArrayList<Player> team1 = new ArrayList();
     public ArrayList<Player> team2 = new ArrayList();
     public ArrayList<Player> team3 = new ArrayList();
     public ArrayList<Player> team4 = new ArrayList();
     public ArrayList<Player> team5 = new ArrayList();
+
+    Location l1;
+    Location l2;
+    Location l3;
+    Location l4;
+    Location l5;
 
     public Team rose;
     public Team jaune;
@@ -147,24 +157,43 @@ public class TaupeGun extends JavaPlugin {
             Player player = (Player) sender;
 
             switch (cmd.getName()) {
+
+                // Chat entre taupe
                 case "t":
-
+                    
                     return true;
+
+                // Lancement de la game
                 case "start":
+                    if (player.isOp()) {
+                        startgame();
+                        return true;
+                    }
 
-                    return true;
+                    break;
+
+                // La taupe se révèle
                 case "reveal":
 
                     return true;
+
+                // Liste des mondes
                 case "worlds":
 
-                    // Liste des mondes
-                    player.sendMessage(ChatColor.GREEN + " * Liste des mondes vue par bukkit");
-                    for (World world : getServer().getWorlds()) {
-                        player.sendMessage(ChatColor.GREEN + world.getName());
+                    if (player.isOp()) {
+
+                        // Liste des mondes
+                        player.sendMessage(ChatColor.GREEN + " * Liste des mondes vue par bukkit");
+                        for (World world : getServer().getWorlds()) {
+                            player.sendMessage(ChatColor.GREEN + world.getName());
+                        }
+
+                        return true;
                     }
 
-                    return true;
+                    break;
+
+                // Liste des taupes
                 case "taupes":
 
                     if (player.getGameMode() == GameMode.SPECTATOR) {
@@ -214,6 +243,63 @@ public class TaupeGun extends JavaPlugin {
      */
     public Scoreboard getScoreBoard() {
         return this.scoreboard;
+    }
+
+    /**
+     * Start une game
+     */
+    public void startgame() {
+        Events.lancement();
+
+        // On récupère le monde
+        World monde = Bukkit.getWorld(getConfig().getString("world"));
+
+        // On définit les positions
+        this.l1 = new Location(monde, 500.0D, 260.0D, 500.0D);
+        this.l2 = new Location(monde, 500.0D, 260.0D, -500.0D);
+        this.l3 = new Location(monde, -500.0D, 260.0D, -500.0D);
+        this.l4 = new Location(monde, -500.0D, 260.0D, 500.0D);
+        this.l5 = new Location(monde, 0.0D, 260.0D, 0.0D);
+
+        // Informations du monde
+        monde.setGameRuleValue("doDaylightCycle", Boolean.valueOf(getConfig().getBoolean("options.eternalday")).toString());
+        monde.setStorm(false);
+        monde.setThundering(false);
+        monde.setTime(5000L);
+        monde.setWeatherDuration(99999);
+
+        // On choisit les taupes
+        this.choixTaupes();
+
+    }
+
+    /**
+     * Choix des taupes
+     */
+    public void choixTaupes() {
+
+        // Liste des joueurs et des teams
+        List<UUID> players = new ArrayList();
+        List<Team> teamstoshuffle = new ArrayList();
+
+        // On parcours les teams
+        for (Team teams : this.scoreboard.getTeams()) {
+            if (!teams.getName().equals("Taupes") && teams.getSize() > 0) {
+                teamstoshuffle.add(teams);
+            }
+        }
+
+        // On shuffle les collections
+        Collections.shuffle(teamstoshuffle);
+        Collections.shuffle(players);
+
+        // On parcourt les teams
+        Random rand = new Random();
+        for (Team team : teamstoshuffle) {
+            Object[] tmp = team.getPlayers().toArray();
+            Player player = (Player) tmp[rand.nextInt(team.getSize()-1)];
+            System.out.println(player.getName());
+        }
     }
 
 }

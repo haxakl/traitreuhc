@@ -101,7 +101,7 @@ public class Events implements Listener {
      */
     @EventHandler
     public void CancelPVP(EntityDamageEvent e) {
-        if (e.getEntity().getWorld().equals(Bukkit.getWorld(config.get("lobby.world").toString()))) {
+        if (!gameStarted) {
             e.setCancelled(true);
         }
     }
@@ -135,7 +135,11 @@ public class Events implements Listener {
     @EventHandler
     public void ChoiceTeam(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
-        if ((e.getInventory().getName().equals(ChatColor.GOLD + " Choisir son équipe")) && (e.getCurrentItem().getType() == Material.BANNER)) {
+        if (e.getCurrentItem() == null) {
+            return;
+        }
+
+        if ((e.getInventory().getName().equals(ChatColor.GOLD + " Choisir son équipe")) && (e.getCurrentItem().getType() == Material.BANNER && e.getCurrentItem().getItemMeta() != null)) {
             BannerMeta banner = (BannerMeta) e.getCurrentItem().getItemMeta();
 
             try {
@@ -146,6 +150,13 @@ public class Events implements Listener {
                 plugin.team5.remove(p);
             } catch (Exception localException) {
 
+            }
+            
+            // Exception si on clique sur le drapeau dans la barre d'action
+            if (banner == null || banner.getBaseColor() == null) {
+                e.setCancelled(true);
+                openTeamInv(p);
+                return;
             }
 
             // Test la couleur du drapeau
@@ -255,5 +266,19 @@ public class Events implements Listener {
 
         p.openInventory(inv);
     }
-
+    
+    /**
+     * Retourne si la game est lancé
+     * @return 
+     */
+    public boolean lance() {
+        return gameStarted;
+    }
+    
+    /**
+     * Lance la game
+     */
+    public static void lancement() {
+        gameStarted = true;
+    }
 }
