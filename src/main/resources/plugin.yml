@@ -2,6 +2,18 @@ name: TaupeGun
 main: taupegun.TaupeGun
 version: 1.0
 commands:
-    uhc:
-        description: Commandes pour l'uhc
+    t:
+        description: Permet de parler avec vos autres taupes
+        usage: /<command> <arg1>
+    start:
+        description: Commence le taupe gun
+        usage: /<command> <arg1>
+    reveal:
+        description: Vous révêle si vous êtes une taupe
+        usage: /<command> <arg1>
+    worlds:
+        description: Liste les mondes sur le serveur
+        usage: /<command> <arg1>
+    taupes:
+        description: Liste des taupes
         usage: /<command> <arg1>
