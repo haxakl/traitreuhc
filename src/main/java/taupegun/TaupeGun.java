@@ -53,24 +53,24 @@ public class TaupeGun extends JavaPlugin {
     private int taupeId;
     private static World monde;
 
-    public ArrayList<Player> team1 = new ArrayList();
-    public ArrayList<Player> team2 = new ArrayList();
-    public ArrayList<Player> team3 = new ArrayList();
-    public ArrayList<Player> team4 = new ArrayList();
-    public ArrayList<Player> team5 = new ArrayList();
+    private ArrayList<Player> team1 = new ArrayList();
+    private ArrayList<Player> team2 = new ArrayList();
+    private ArrayList<Player> team3 = new ArrayList();
+    private ArrayList<Player> team4 = new ArrayList();
+    private ArrayList<Player> team5 = new ArrayList();
 
-    Location l1;
-    Location l2;
-    Location l3;
-    Location l4;
-    Location l5;
+    private Location l1;
+    private Location l2;
+    private Location l3;
+    private Location l4;
+    private Location l5;
 
-    public Team rose;
-    public Team jaune;
-    public Team violette;
-    public Team cyan;
-    public Team verte;
-    public Team taupesteam;
+    private Team rose;
+    private Team jaune;
+    private Team violette;
+    private Team cyan;
+    private Team verte;
+    private Team taupesteam;
 
     /**
      * Initialisation du plugin
@@ -253,8 +253,7 @@ public class TaupeGun extends JavaPlugin {
                 case "reveal":
                     if (this.taupes.contains(player.getUniqueId())) {
                         if (this.taupesReveles.contains(player.getUniqueId())) {
-                            player.sendMessage(ChatColor.RED
-                                    + "Vous vous êtes déjà révélé !");
+                            player.sendMessage(ChatColor.RED + "Vous vous êtes déjà révélé !");
                         } else {
                             if (this.scoreboard.getPlayerTeam(player).getSize() == 1) {
                                 this.scoreboard.getPlayerTeam(player).unregister();
@@ -262,12 +261,10 @@ public class TaupeGun extends JavaPlugin {
                             this.taupesteam.addPlayer(player);
                             this.taupesReveles.add(player.getUniqueId());
                             for (Player online : Bukkit.getOnlinePlayers()) {
-                                online.sendMessage(ChatColor.RED + player.getName()
-                                        + " a révélé qu'il était une taupe !");
+                                online.sendMessage(ChatColor.RED + player.getName() + " a révélé qu'il était une taupe !");
                                 online.playSound(online.getLocation(), Sound.GHAST_SCREAM, 10.0F, -10.0F);
                             }
                         }
-                        return true;
                     }
                     return true;
 
@@ -584,6 +581,46 @@ public class TaupeGun extends JavaPlugin {
             }
         }.runTaskLater(this, 1200 * getConfig().getInt("options.pvptime"));
 
+    }
+
+    public ArrayList<Player> getTeam1() {
+        return team1;
+    }
+
+    public ArrayList<Player> getTeam2() {
+        return team2;
+    }
+
+    public ArrayList<Player> getTeam3() {
+        return team3;
+    }
+
+    public ArrayList<Player> getTeam4() {
+        return team4;
+    }
+
+    public ArrayList<Player> getTeam5() {
+        return team5;
+    }
+
+    public Team getRose() {
+        return rose;
+    }
+
+    public Team getJaune() {
+        return jaune;
+    }
+
+    public Team getViolette() {
+        return violette;
+    }
+
+    public Team getCyan() {
+        return cyan;
+    }
+
+    public Team getVerte() {
+        return verte;
     }
 
 }

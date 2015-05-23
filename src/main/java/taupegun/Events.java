@@ -159,23 +159,25 @@ public class Events implements Listener {
 
     @EventHandler
     public void ChatSpec(AsyncPlayerChatEvent e) {
+        
+        // Teste si la game est lancé
         if (gameStarted) {
             Player p = e.getPlayer();
             if (!alive.contains(p.getUniqueId())) {
                 e.setCancelled(true);
                 for (Player dead : getDeathPlayers()) {
-                    dead.sendMessage("<" + ChatColor.GRAY + ChatColor.ITALIC.toString() + p.getName() + ChatColor.RESET + "> " + e.getMessage());
+                    dead.sendMessage(ChatColor.GRAY + "(Spectateur) <" + ChatColor.ITALIC.toString() + p.getName() + "> " + ChatColor.RESET + e.getMessage());
                 }
             }
 
             // Message en all
             if (e.getMessage().charAt(0) == '!') {
-                Bukkit.broadcastMessage("<" + ChatColor.BLACK + p.getName() + ChatColor.RESET + "> " + e.getMessage());
+                Bukkit.broadcastMessage(ChatColor.BLACK + "(All) <" + p.getName() + "> " + ChatColor.RESET + e.getMessage().substring(1));
             } // Message de team
             else {
                 Team team = plugin.getScoreBoard().getPlayerTeam(p);
                 for (Object player : team.getPlayers().toArray()) {
-                    ((Player) player).sendMessage("<" + team.getPrefix() + p.getName() + ChatColor.RESET + "> " + e.getMessage());
+                    ((Player) player).sendMessage(team.getPrefix() + "(Equipe) <" + p.getName() + "> " + ChatColor.RESET + e.getMessage());
                 }
             }
 
@@ -194,11 +196,11 @@ public class Events implements Listener {
             BannerMeta banner = (BannerMeta) e.getCurrentItem().getItemMeta();
 
             try {
-                plugin.team1.remove(p);
-                plugin.team2.remove(p);
-                plugin.team3.remove(p);
-                plugin.team4.remove(p);
-                plugin.team5.remove(p);
+                plugin.getTeam1().remove(p);
+                plugin.getTeam2().remove(p);
+                plugin.getTeam3().remove(p);
+                plugin.getTeam4().remove(p);
+                plugin.getTeam5().remove(p);
             } catch (Exception localException) {
 
             }
@@ -214,33 +216,33 @@ public class Events implements Listener {
             switch (banner.getBaseColor()) {
 
                 case PINK:
-                    plugin.team1.add(p);
-                    p.sendMessage(plugin.rose.getPrefix() + "" + ChatColor.RESET + " Vous avez rejoint l'équipe Rose");
-                    plugin.rose.addPlayer(p);
+                    plugin.getTeam1().add(p);
+                    p.sendMessage(plugin.getRose().getPrefix() + "" + ChatColor.RESET + " Vous avez rejoint l'équipe Rose");
+                    plugin.getRose().addPlayer(p);
                     break;
 
                 case YELLOW:
-                    plugin.team2.add(p);
-                    p.sendMessage(plugin.jaune.getPrefix() + "" + ChatColor.RESET + " Vous avez rejoint l'équipe Jaune");
-                    plugin.jaune.addPlayer(p);
+                    plugin.getTeam2().add(p);
+                    p.sendMessage(plugin.getJaune().getPrefix() + "" + ChatColor.RESET + " Vous avez rejoint l'équipe Jaune");
+                    plugin.getJaune().addPlayer(p);
                     break;
 
                 case PURPLE:
-                    plugin.team3.add(p);
-                    p.sendMessage(plugin.violette.getPrefix() + "" + ChatColor.RESET + " Vous avez rejoint l'équipe Violette");
-                    plugin.violette.addPlayer(p);
+                    plugin.getTeam3().add(p);
+                    p.sendMessage(plugin.getViolette().getPrefix() + "" + ChatColor.RESET + " Vous avez rejoint l'équipe Violette");
+                    plugin.getViolette().addPlayer(p);
                     break;
 
                 case CYAN:
-                    plugin.team4.add(p);
-                    p.sendMessage(plugin.cyan.getPrefix() + "" + ChatColor.RESET + " Vous avez rejoint l'équipe Cyan");
-                    plugin.cyan.addPlayer(p);
+                    plugin.getTeam4().add(p);
+                    p.sendMessage(plugin.getCyan().getPrefix() + "" + ChatColor.RESET + " Vous avez rejoint l'équipe Cyan");
+                    plugin.getCyan().addPlayer(p);
                     break;
 
                 case GREEN:
-                    plugin.team5.add(p);
-                    p.sendMessage(plugin.verte.getPrefix() + "" + ChatColor.RESET + " Vous avez rejoint l'équipe Verte");
-                    plugin.verte.addPlayer(p);
+                    plugin.getTeam5().add(p);
+                    p.sendMessage(plugin.getVerte().getPrefix() + "" + ChatColor.RESET + " Vous avez rejoint l'équipe Verte");
+                    plugin.getVerte().addPlayer(p);
                     break;
 
             }
