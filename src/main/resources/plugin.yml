@@ -17,3 +17,6 @@ commands:
     taupes:
         description: Liste des taupes
         usage: /<command> <arg1>
+    claim:
+        description: Donne un objet aléatoire à la taupe
+        usage: /<command> <arg1>
