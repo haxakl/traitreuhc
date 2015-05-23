@@ -159,7 +159,7 @@ public class Events implements Listener {
 
     @EventHandler
     public void ChatSpec(AsyncPlayerChatEvent e) {
-        if (!gameStarted) {
+        if (gameStarted) {
             Player p = e.getPlayer();
             if (!alive.contains(p.getUniqueId())) {
                 e.setCancelled(true);
@@ -257,16 +257,16 @@ public class Events implements Listener {
             Location tmp = e.getPlayer().getLocation();
             tmp.setY(tmp.getY() - 1);
             Block glass = tmp.getBlock();
-            
+
             // Test si c'est de la glass
             if (glass.getType() == Material.GLASS || glass.getType() == Material.STAINED_GLASS) {
-                
+
                 Team team = plugin.getScoreBoard().getPlayerTeam(e.getPlayer());
-                
-                if(team == null) {
+
+                if (team == null) {
                     return;
                 }
-                
+
                 switch (team.getName()) {
 
                     // Rose
@@ -276,7 +276,7 @@ public class Events implements Listener {
 
                     // Jaune
                     case "jaune":
-                        glass.setData((byte) 3);
+                        glass.setData((byte) 4);
                         break;
 
                     // Violette
@@ -286,16 +286,16 @@ public class Events implements Listener {
 
                     // Cyan
                     case "cyan":
-                        glass.setData((byte) 9);
+                        glass.setData((byte) 3);
                         break;
 
                     // Verte
                     case "verte":
                         glass.setData((byte) 5);
                         break;
-                    
+
                 }
-                
+
             }
         }
     }
@@ -342,12 +342,8 @@ public class Events implements Listener {
     @EventHandler
     public void RespawnTp(PlayerRespawnEvent e) {
         final Player p = e.getPlayer();
-        BukkitTask task4 = new BukkitRunnable() {
-            public void run() {
-                p.teleport(new Location(Bukkit.getWorld(Events.plugin.getConfig().get("lobby.world").toString()), Events.plugin.getConfig().getInt("lobby.X"), Events.plugin.getConfig().getInt("lobby.Y"), Events.plugin.getConfig().getInt("lobby.Z")));
-                p.setGameMode(GameMode.SPECTATOR);
-            }
-        }.runTaskLater(plugin, 4L);
+        p.setGameMode(GameMode.SPECTATOR);
+        p.teleport(new Location(Bukkit.getWorld(Events.plugin.getConfig().get("world").toString()), Events.plugin.getConfig().getInt("lobby.X"), Events.plugin.getConfig().getInt("lobby.Y"), Events.plugin.getConfig().getInt("lobby.Z")));
     }
 
     /**
@@ -482,5 +478,12 @@ public class Events implements Listener {
             }
         }
         return deadList;
+    }
+    
+    /**
+     * Ajoute un joueur
+     */
+    public static void addPlayer(UUID player) {
+        alive.add(player);
     }
 }

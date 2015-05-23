@@ -7,16 +7,16 @@ commands:
         usage: /<command> <arg1>
     start:
         description: Commence le taupe gun
-        usage: /<command> <arg1>
+        usage: /<command>
     reveal:
         description: Vous révêle si vous êtes une taupe
-        usage: /<command> <arg1>
+        usage: /<command>
     worlds:
         description: Liste les mondes sur le serveur
-        usage: /<command> <arg1>
+        usage: /<command>
     taupes:
         description: Liste des taupes
         usage: /<command> <arg1>
     claim:
         description: Donne un objet aléatoire à la taupe
-        usage: /<command> <arg1>
+        usage: /<command>

@@ -14,12 +14,15 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -45,6 +48,7 @@ public class TaupeGun extends JavaPlugin {
     private int episode = 1;
     private ArrayList<UUID> taupes = new ArrayList();
     private ArrayList<UUID> taupesClaim = new ArrayList();
+    private ArrayList<UUID> taupesReveles = new ArrayList();
     private HashMap<UUID, Integer> taupesId = new HashMap();
     private int taupeId;
     private static World monde;
@@ -149,25 +153,25 @@ public class TaupeGun extends JavaPlugin {
         for (int i = 0; i < 30; i++) {
             for (int j = 0; j < 30; j++) {
                 TaupeGun.monde.getBlockAt(-15 + i, 100, -15 + j).setType(Material.STAINED_GLASS);
-                
+
                 TaupeGun.monde.getBlockAt(-15, 101, -15 + j).setType(Material.STAINED_GLASS);
                 TaupeGun.monde.getBlockAt(-15, 102, -15 + j).setType(Material.STAINED_GLASS);
                 TaupeGun.monde.getBlockAt(-15, 103, -15 + j).setType(Material.STAINED_GLASS);
-                
+
                 TaupeGun.monde.getBlockAt(15, 101, -15 + j).setType(Material.STAINED_GLASS);
                 TaupeGun.monde.getBlockAt(15, 102, -15 + j).setType(Material.STAINED_GLASS);
                 TaupeGun.monde.getBlockAt(15, 103, -15 + j).setType(Material.STAINED_GLASS);
-                
+
                 TaupeGun.monde.getBlockAt(-15 + i, 101, -15).setType(Material.STAINED_GLASS);
                 TaupeGun.monde.getBlockAt(-15 + i, 102, -15).setType(Material.STAINED_GLASS);
                 TaupeGun.monde.getBlockAt(-15 + i, 103, -15).setType(Material.STAINED_GLASS);
-                
+
                 TaupeGun.monde.getBlockAt(-15 + i, 101, 15).setType(Material.STAINED_GLASS);
                 TaupeGun.monde.getBlockAt(-15 + i, 102, 15).setType(Material.STAINED_GLASS);
                 TaupeGun.monde.getBlockAt(-15 + i, 103, 15).setType(Material.STAINED_GLASS);
             }
         }
-        
+
         // On appelle le constructeur de la classe parente
         super.onEnable();
     }
@@ -198,6 +202,14 @@ public class TaupeGun extends JavaPlugin {
                     }
                     return true;
 
+                // Chat entre taupe
+                case "alives":
+                    player.sendMessage(ChatColor.GREEN + " * Liste des personnages");
+                    for (UUID alive : Events.getAlive()) {
+                        player.sendMessage(getServer().getPlayer(alive).getName());
+                    }
+                    return true;
+
                 // Lancement de la game
                 case "start":
                     if (player.isOp()) {
@@ -207,9 +219,56 @@ public class TaupeGun extends JavaPlugin {
 
                     break;
 
+                // Claim
+                case "claim":
+
+                    // On test si le joueur est une taupe
+                    if (this.taupes.contains(player.getUniqueId()) && !taupesClaim.contains(player.getUniqueId())) {
+                        ArrayList<ItemStack> items = new ArrayList<>();
+                        items.add(new ItemStack(Material.GOLDEN_APPLE, 2));
+
+                        ItemStack bookFireAspect = new ItemStack(Material.ENCHANTED_BOOK, 1);
+                        EnchantmentStorageMeta metaFire = (EnchantmentStorageMeta) bookFireAspect.getItemMeta();
+                        metaFire.addStoredEnchant(Enchantment.FIRE_ASPECT, 1, true);
+                        bookFireAspect.setItemMeta(metaFire);
+
+                        ItemStack bookFlameAspect = new ItemStack(Material.ENCHANTED_BOOK, 1);
+                        EnchantmentStorageMeta metaFlame = (EnchantmentStorageMeta) bookFlameAspect.getItemMeta();
+                        metaFlame.addStoredEnchant(Enchantment.ARROW_FIRE, 1, true);
+                        bookFlameAspect.setItemMeta(metaFlame);
+
+                        items.add(bookFireAspect);
+                        items.add(bookFlameAspect);
+
+                        Random rand = new Random();
+
+                        player.getInventory().addItem(items.get(rand.nextInt(items.size())));
+
+                        taupesClaim.add(player.getUniqueId());
+                    }
+
+                    return true;
+
                 // La taupe se révèle
                 case "reveal":
-
+                    if (this.taupes.contains(player.getUniqueId())) {
+                        if (this.taupesReveles.contains(player.getUniqueId())) {
+                            player.sendMessage(ChatColor.RED
+                                    + "Vous vous êtes déjà révélé !");
+                        } else {
+                            if (this.scoreboard.getPlayerTeam(player).getSize() == 1) {
+                                this.scoreboard.getPlayerTeam(player).unregister();
+                            }
+                            this.taupesteam.addPlayer(player);
+                            this.taupesReveles.add(player.getUniqueId());
+                            for (Player online : Bukkit.getOnlinePlayers()) {
+                                online.sendMessage(ChatColor.RED + player.getName()
+                                        + " a révélé qu'il était une taupe !");
+                                online.playSound(online.getLocation(), Sound.GHAST_SCREAM, 10.0F, -10.0F);
+                            }
+                        }
+                        return true;
+                    }
                     return true;
 
                 // Liste des mondes
@@ -218,7 +277,7 @@ public class TaupeGun extends JavaPlugin {
                         // Liste des mondes
                         player.sendMessage(ChatColor.GREEN + " * Liste des mondes vue par bukkit");
                         for (World world : getServer().getWorlds()) {
-                            player.sendMessage(ChatColor.GREEN + world.getName());
+                            player.sendMessage(world.getName());
                         }
                         return true;
                     }
@@ -226,10 +285,14 @@ public class TaupeGun extends JavaPlugin {
 
                 // Liste des taupes
                 case "taupes":
-                    
+
                     // test si le joueur est en spec
                     if (player.getGameMode() == GameMode.SPECTATOR) {
                         player.sendMessage(ChatColor.GREEN + " * Liste des taupes");
+
+                        for (UUID taupe : taupes) {
+                            player.sendMessage(getServer().getPlayer(taupe).getName());
+                        }
 
                     }
 
@@ -285,7 +348,7 @@ public class TaupeGun extends JavaPlugin {
         this.l2 = new Location(monde, 500.0D, 260.0D, -500.0D);
         this.l3 = new Location(monde, -500.0D, 260.0D, -500.0D);
         this.l4 = new Location(monde, -500.0D, 260.0D, 500.0D);
-        this.l5 = new Location(monde, 0.0D, 260.0D, 0.0D);
+        this.l5 = new Location(monde, 50.0D, 260.0D, -50.0D);
 
         // Informations du monde
         monde.setGameRuleValue("doDaylightCycle", Boolean.toString(getConfig().getBoolean("options.eternalday")));
@@ -354,11 +417,10 @@ public class TaupeGun extends JavaPlugin {
                 // On ajoute l'anti dommage
                 p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20 * getConfig().getInt("options.secinvulnerable"), 4));
             }
-        }
 
-        // On met le scoreboard à tout le monde
-        for (Player online : Bukkit.getOnlinePlayers()) {
-            online.setScoreboard(this.scoreboard);
+            p.setScoreboard(this.scoreboard);
+
+            Events.addPlayer(p.getUniqueId());
         }
 
         // Tâches asynchrone
