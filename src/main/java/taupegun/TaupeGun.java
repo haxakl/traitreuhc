@@ -1,5 +1,7 @@
 package taupegun;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +19,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
@@ -34,6 +39,7 @@ public class TaupeGun extends JavaPlugin {
     private Scoreboard scoreboard;
     private Objective vie;
     private Objective obj;
+    private int episode = 1;
 
     public ArrayList<Player> team1 = new ArrayList();
     public ArrayList<Player> team2 = new ArrayList();
@@ -160,7 +166,7 @@ public class TaupeGun extends JavaPlugin {
 
                 // Chat entre taupe
                 case "t":
-                    
+
                     return true;
 
                 // Lancement de la game
@@ -200,6 +206,8 @@ public class TaupeGun extends JavaPlugin {
                         player.sendMessage(ChatColor.GREEN + " * Liste des taupes");
 
                     }
+
+                    this.choixTaupes();
 
                     return true;
             }
@@ -271,6 +279,85 @@ public class TaupeGun extends JavaPlugin {
         // On choisit les taupes
         this.choixTaupes();
 
+        // On crée le scoreboard
+        this.scoreboard.getObjective(this.obj.getDisplayName()).getScore(ChatColor.GRAY + "Episode " + ChatColor.WHITE + this.episode).setScore(0);
+        this.scoreboard.getObjective(this.obj.getDisplayName()).getScore(this.scoreboard.getTeams().size() + ChatColor.GRAY.toString() + " équipes").setScore(-2);
+        this.scoreboard.getObjective(this.obj.getDisplayName()).getScore(" ").setScore(-3);
+
+        // On téléporte les joueurs
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.getInventory().clear();
+            p.setGameMode(GameMode.SURVIVAL);
+            p.setHealth(20.0D);
+            p.setFoodLevel(40);
+            p.setLevel(0);
+            if (this.scoreboard.getPlayerTeam(p).getName().equals("rose")) {
+                p.teleport(this.l1);
+            } else if (this.scoreboard.getPlayerTeam(p).getName().equals("jaune")) {
+                p.teleport(this.l2);
+            } else if (this.scoreboard.getPlayerTeam(p).getName().equals("violette")) {
+                p.teleport(this.l3);
+            } else if (this.scoreboard.getPlayerTeam(p).getName().equals("cyan")) {
+                p.teleport(this.l4);
+            } else if (this.scoreboard.getPlayerTeam(p).getName().equals("verte")) {
+                p.teleport(this.l5);
+            }
+            p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20 * getConfig().getInt("options.secinvulnerable"), 4));
+        }
+
+        new BukkitRunnable() {
+            int minutes = 20;
+            int seconds = 0;
+            
+            int minutesBefMeetUp = 60;
+            int secondesBefMeetUp = 0;
+
+            public void run() {
+                
+                NumberFormat formatter = new DecimalFormat("00");
+                String minute = formatter.format(this.minutes);
+                String second = formatter.format(this.seconds);
+                TaupeGun.this.scoreboard.resetScores(minute + ":" + second);
+                if (this.seconds == 0) {
+                    if (this.minutes == 0) {
+                        TaupeGun.this.scoreboard.resetScores(ChatColor.GRAY + "Episode "
+                                + ChatColor.WHITE + TaupeGun.this.episode);
+
+                        TaupeGun.this.episode += 1;
+                        Bukkit.broadcastMessage(ChatColor.AQUA + "------------- Episode " + TaupeGun.this.episode + " -------------");
+
+                        TaupeGun.this.scoreboard.getObjective(TaupeGun.this.obj.getDisplayName()).getScore(ChatColor.GRAY + "Episode " + ChatColor.WHITE + TaupeGun.this.episode).setScore(0);
+
+                        this.seconds = 59;
+                        this.minutes = 19;
+                    } else {
+                        this.seconds = 59;
+                        this.minutes -= 1;
+                    }
+                } else {
+                    this.seconds -= 1;
+                }
+                
+                if(this.secondesBefMeetUp == 0) {
+                    this.minutesBefMeetUp--;
+                    this.secondesBefMeetUp = 59;
+                } else {
+                    this.secondesBefMeetUp--;
+                }
+                int teams = TaupeGun.this.scoreboard.getTeams().size();
+                TaupeGun.this.scoreboard.resetScores(teams + 1 + ChatColor.GRAY.toString() + " équipes");
+                TaupeGun.this.scoreboard.getObjective(TaupeGun.this.obj.getDisplayName()).getScore(teams + ChatColor.GRAY.toString() + " équipes").setScore(-2);
+
+                Object formatter2 = new DecimalFormat("00");
+                String minute2 = ((NumberFormat) formatter2).format(this.minutes);
+                String second2 = ((NumberFormat) formatter2).format(this.seconds);
+                String minute3 = ((NumberFormat) formatter2).format(this.minutesBefMeetUp);
+                String second3 = ((NumberFormat) formatter2).format(this.secondesBefMeetUp);
+                TaupeGun.this.scoreboard.getObjective(TaupeGun.this.obj.getDisplayName()).getScore(minute2 + ":" + second2).setScore(-4);
+                TaupeGun.this.scoreboard.getObjective(TaupeGun.this.obj.getDisplayName()).getScore(minute3 + ":" + second3).setScore(-5);
+            }
+        }.runTaskTimer(this, 0L, 20L);
+
     }
 
     /**
@@ -297,8 +384,14 @@ public class TaupeGun extends JavaPlugin {
         Random rand = new Random();
         for (Team team : teamstoshuffle) {
             Object[] tmp = team.getPlayers().toArray();
-            Player player = (Player) tmp[rand.nextInt(team.getSize()-1)];
-            System.out.println(player.getName());
+            Player player = (Player) tmp[rand.nextInt(team.getSize())];
+
+            player.sendMessage(ChatColor.RED + "-------Annonce IMPORTANTE------");
+            player.sendMessage(ChatColor.GOLD + "Vous êtes la taupe de votre équipe !");
+            player.sendMessage(ChatColor.GOLD + "Pour parler avec les autres taupes executez la commande /t < message>");
+            player.sendMessage(ChatColor.GOLD + "Si vous voulez dévoiler votre vraie identité executez la commande /reveal");
+            player.sendMessage(ChatColor.GOLD + "Votre but : " + ChatColor.DARK_RED + "Tuer les membres de votre \"équipe\"");
+            player.sendMessage(ChatColor.RED + "-------------------------------");
         }
     }
 

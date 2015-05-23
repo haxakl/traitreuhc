@@ -16,6 +16,10 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>repo.oc.tc</id>
+            <url>https://repo.oc.tc/content/repositories/public/</url>
+        </repository>
     </repositories>
     
     <dependencies>
